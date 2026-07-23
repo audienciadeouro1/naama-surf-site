@@ -58,21 +58,11 @@ img { display: block; max-width: 100%; }
 .language-switch button { width: 31px; height: 31px; display: grid; place-items: center; border: 0; border-radius: 50%; padding: 0; background: transparent; cursor: pointer; opacity: .48; filter: saturate(.7); transition: opacity .2s, background .2s, transform .2s, filter .2s; }
 .language-switch button:hover { opacity: .85; transform: translateY(-1px); }
 .language-switch button.active { opacity: 1; filter: saturate(1.12); background: rgba(255,255,255,.16); box-shadow: 0 0 0 1px rgba(255,212,59,.72); }
-.language-switch .flag { position: relative; width: 22px; height: 15px; display: block; overflow: hidden; border-radius: 2px; box-shadow: 0 0 0 1px rgba(255,255,255,.46), 0 2px 5px rgba(0,0,0,.24); }
-.flag-pt { background: #009b3a; }
-.flag-pt::before { content: ""; position: absolute; width: 12px; height: 12px; left: 5px; top: 1.5px; background: #ffdf00; transform: rotate(45deg); }
-.flag-pt::after { content: ""; position: absolute; width: 7px; height: 7px; left: 7.5px; top: 4px; border-radius: 50%; background: #002776; }
-.flag-en { background:
-  linear-gradient(90deg, transparent 42%, #fff 42% 58%, transparent 58%),
-  linear-gradient(transparent 36%, #fff 36% 64%, transparent 64%),
-  linear-gradient(90deg, transparent 46%, #c8102e 46% 54%, transparent 54%),
-  linear-gradient(transparent 43%, #c8102e 43% 57%, transparent 57%),
-  linear-gradient(34deg, transparent 43%, #fff 43% 48%, #c8102e 48% 52%, #fff 52% 57%, transparent 57%),
-  linear-gradient(-34deg, transparent 43%, #fff 43% 48%, #c8102e 48% 52%, #fff 52% 57%, transparent 57%),
-  #012169;
-}
-.flag-es { background: linear-gradient(#aa151b 0 25%, #f1bf00 25% 75%, #aa151b 75%); }
-.flag-fr { background: linear-gradient(90deg, #0055a4 0 33.33%, #fff 33.33% 66.66%, #ef4135 66.66%); }
+.language-switch .flag { position: relative; width: 22px; height: 15px; display: block; overflow: hidden; border-radius: 2px; box-shadow: 0 0 0 1px rgba(255,255,255,.46), 0 2px 5px rgba(0,0,0,.24); background-size: cover; background-position: center; background-repeat: no-repeat; }
+.flag-pt { background-image: url("/flags/pt.svg"); }
+.flag-en { background-image: url("/flags/en.svg"); }
+.flag-es { background-image: url("/flags/es.svg"); }
+.flag-fr { background-image: url("/flags/fr.svg"); }
 .header-cta { display: inline-flex; align-items: center; gap: 10px; background: var(--yellow); color: var(--navy); border-radius: 99px; padding: 15px 22px; font-size: 13px; font-weight: 800; }
 
 .hero { min-height: 100svh; position: relative; display: flex; align-items: center; color: white; overflow: hidden; background: var(--navy); }

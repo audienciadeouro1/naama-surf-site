@@ -509,6 +509,8 @@ const interfaceCopy: Record<Language, {
   closeImage: string;
   previousImage: string;
   nextImage: string;
+  openMenu: string;
+  closeMenu: string;
   contact: string;
   location: string;
 }> = {
@@ -527,6 +529,8 @@ const interfaceCopy: Record<Language, {
     closeImage: "Fechar imagem",
     previousImage: "Imagem anterior",
     nextImage: "Próxima imagem",
+    openMenu: "Abrir menu",
+    closeMenu: "Fechar menu",
     contact: "CONTATO",
     location: "LOCALIZAÇÃO",
   },
@@ -545,6 +549,8 @@ const interfaceCopy: Record<Language, {
     closeImage: "Close image",
     previousImage: "Previous image",
     nextImage: "Next image",
+    openMenu: "Open menu",
+    closeMenu: "Close menu",
     contact: "CONTACT",
     location: "LOCATION",
   },
@@ -563,6 +569,8 @@ const interfaceCopy: Record<Language, {
     closeImage: "Cerrar imagen",
     previousImage: "Imagen anterior",
     nextImage: "Imagen siguiente",
+    openMenu: "Abrir menú",
+    closeMenu: "Cerrar menú",
     contact: "CONTACTO",
     location: "UBICACIÓN",
   },
@@ -581,6 +589,8 @@ const interfaceCopy: Record<Language, {
     closeImage: "Fermer l’image",
     previousImage: "Image précédente",
     nextImage: "Image suivante",
+    openMenu: "Ouvrir le menu",
+    closeMenu: "Fermer le menu",
     contact: "CONTACT",
     location: "LOCALISATION",
   },
@@ -595,6 +605,7 @@ export default function Home() {
   const [activeStoryPhoto, setActiveStoryPhoto] = useState(0);
   const [selectedExperiencePhoto, setSelectedExperiencePhoto] = useState<number | null>(null);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const c = copy[language];
   const u = interfaceCopy[language];
   const whatsappUrl = WHATSAPP_URLS[language];
@@ -611,14 +622,42 @@ export default function Home() {
 
   useEffect(() => {
     const browserLanguage = navigator.language?.toLowerCase() ?? "";
-    if (browserLanguage.startsWith("en")) setLanguage("en");
-    if (browserLanguage.startsWith("es")) setLanguage("es");
-    if (browserLanguage.startsWith("fr")) setLanguage("fr");
+    const preferredLanguage: Language = browserLanguage.startsWith("en")
+      ? "en"
+      : browserLanguage.startsWith("es")
+        ? "es"
+        : browserLanguage.startsWith("fr")
+          ? "fr"
+          : "pt";
+    const frame = window.requestAnimationFrame(() => setLanguage(preferredLanguage));
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
     document.documentElement.lang = language === "pt" ? "pt-BR" : language;
   }, [language]);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsMobileMenuOpen(false);
+    };
+    const closeOnDesktop = () => {
+      if (window.innerWidth > 780) setIsMobileMenuOpen(false);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    window.addEventListener("resize", closeOnDesktop);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+      window.removeEventListener("resize", closeOnDesktop);
+    };
+  }, [isMobileMenuOpen]);
 
   useEffect(() => {
     if (selectedExperiencePhoto === null) return;
@@ -675,8 +714,75 @@ export default function Home() {
           <a href={whatsappUrl} className="header-cta" target="_blank" rel="noreferrer">
             <WhatsAppIcon /> <span className="cta-label">{c.navCta}</span>
           </a>
+          <button
+            type="button"
+            className={`mobile-menu-button ${isMobileMenuOpen ? "is-open" : ""}`}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-navigation"
+            aria-label={isMobileMenuOpen ? u.closeMenu : u.openMenu}
+            onClick={() => setIsMobileMenuOpen((current) => !current)}
+          >
+            <span />
+            <span />
+          </button>
         </div>
       </header>
+
+      {isMobileMenuOpen && (
+        <>
+          <button
+            type="button"
+            className="mobile-menu-backdrop"
+            aria-label={u.closeMenu}
+            tabIndex={-1}
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <nav className="mobile-navigation" id="mobile-navigation" aria-label={u.mainNavigation}>
+            <div className="mobile-nav-links">
+              {c.nav.map((item, index) => (
+                <a
+                  href={c.navHref[index]}
+                  key={item}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <span>0{index + 1}</span>
+                  {item}
+                  <b aria-hidden="true">↘</b>
+                </a>
+              ))}
+            </div>
+            <div className="mobile-nav-footer">
+              <div className="mobile-language-switch" aria-label={u.languageSelector}>
+                {LANGUAGE_OPTIONS.map((option) => (
+                  <button
+                    type="button"
+                    key={option.code}
+                    className={language === option.code ? "active" : ""}
+                    onClick={() => {
+                      setLanguage(option.code);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    aria-label={option.label}
+                    aria-pressed={language === option.code}
+                  >
+                    <span aria-hidden="true" className={`flag flag-${option.code}`} />
+                    <small>{option.code.toUpperCase()}</small>
+                  </button>
+                ))}
+              </div>
+              <a
+                href={whatsappUrl}
+                className="button button-yellow"
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <WhatsAppIcon /> {c.navCta}
+              </a>
+            </div>
+          </nav>
+        </>
+      )}
 
       <section className="hero" id="top">
         <div className="hero-photo" aria-hidden="true" />

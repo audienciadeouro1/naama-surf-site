@@ -166,7 +166,8 @@ h2 { font-size: clamp(58px, 7vw, 104px); letter-spacing: -.04em; font-weight: 80
 .real-video-copy p { max-width: 390px; margin: 0; color: rgba(6,29,49,.63); line-height: 1.6; }
 .real-video-card { position: relative; overflow: hidden; padding: 9px; border-radius: 26px; background: var(--navy); box-shadow: 20px 24px 0 var(--aqua), 0 30px 60px rgba(6,29,49,.17); }
 .real-video-card video { width: 100%; aspect-ratio: 16 / 9; display: block; border-radius: 18px; object-fit: cover; background: var(--navy); }
-.real-video-card > div { position: absolute; left: 28px; bottom: 28px; display: flex; align-items: center; gap: 11px; padding: 10px 14px 10px 10px; border-radius: 99px; color: white; background: rgba(6,29,49,.82); backdrop-filter: blur(10px); font-size: 10px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; pointer-events: none; }
+.real-video-card > div { position: absolute; left: 28px; bottom: 28px; display: flex; align-items: center; gap: 11px; padding: 10px 14px 10px 10px; border-radius: 99px; color: white; background: rgba(6,29,49,.82); backdrop-filter: blur(10px); font-size: 10px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; pointer-events: none; transition: opacity .3s ease, visibility .3s ease; }
+.real-video-card.is-playing > div { opacity: 0; visibility: hidden; }
 .real-video-card > div span { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; color: var(--navy); background: var(--yellow); font-size: 9px; }
 .real-photo-reel { width: 100%; margin-top: 110px; overflow-x: auto; overscroll-behavior-inline: contain; scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: var(--green) transparent; }
 .real-photo-reel-track { width: max-content; min-width: 100%; padding: 24px max(28px, calc((100vw - 1220px) / 2)) 45px; display: flex; align-items: center; gap: 20px; }

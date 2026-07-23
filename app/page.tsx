@@ -594,6 +594,7 @@ export default function Home() {
   const [language, setLanguage] = useState<Language>("pt");
   const [activeStoryPhoto, setActiveStoryPhoto] = useState(0);
   const [selectedExperiencePhoto, setSelectedExperiencePhoto] = useState<number | null>(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const c = copy[language];
   const u = interfaceCopy[language];
   const whatsappUrl = WHATSAPP_URLS[language];
@@ -812,8 +813,17 @@ export default function Home() {
             <h3>{c.realVideoTitle}</h3>
             <p>{c.realVideoBody}</p>
           </div>
-          <div className="real-video-card">
-            <video controls muted playsInline preload="metadata" poster="/experience/aula-07.jpg">
+          <div className={`real-video-card ${isVideoPlaying ? "is-playing" : ""}`}>
+            <video
+              controls
+              muted
+              playsInline
+              preload="metadata"
+              poster="/experience/aula-07.jpg"
+              onPlay={() => setIsVideoPlaying(true)}
+              onPause={() => setIsVideoPlaying(false)}
+              onEnded={() => setIsVideoPlaying(false)}
+            >
               <source src="/experience/aulas-naama.mp4" type="video/mp4" />
             </video>
             <div aria-hidden="true"><span>▶</span>{c.realVideoPlay}</div>

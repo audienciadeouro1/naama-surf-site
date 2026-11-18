@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { FaInstagram, FaWhatsapp } from "react-icons/fa";
+import { captureOrigin, trackEvent, withOrigin } from "./tracking";
 
 type Language = "pt" | "en" | "es" | "fr";
 
@@ -609,6 +610,14 @@ export default function Home() {
   const c = copy[language];
   const u = interfaceCopy[language];
   const whatsappUrl = WHATSAPP_URLS[language];
+  const waClick = (ctaLocation: string) => (event: MouseEvent<HTMLAnchorElement>) => {
+    event.currentTarget.href = withOrigin(whatsappUrl);
+    trackEvent("whatsapp_click", { cta_location: ctaLocation, language });
+  };
+  const changeLanguage = (next: Language) => {
+    setLanguage(next);
+    trackEvent("language_change", { language: next });
+  };
   const storyPhotos = [
     "/story/kelly-slater1.jpg",
     "/story/kelly-slater2.jpg",
@@ -631,6 +640,26 @@ export default function Home() {
           : "pt";
     const frame = window.requestAnimationFrame(() => setLanguage(preferredLanguage));
     return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    captureOrigin();
+  }, []);
+
+  useEffect(() => {
+    const story = document.getElementById("naama");
+    if (!story || !("IntersectionObserver" in window)) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          trackEvent("story_view", { language: document.documentElement.lang.slice(0, 2) });
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "0px 0px -50% 0px", threshold: 0 },
+    );
+    observer.observe(story);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -702,7 +731,7 @@ export default function Home() {
                 type="button"
                 key={option.code}
                 className={language === option.code ? "active" : ""}
-                onClick={() => setLanguage(option.code)}
+                onClick={() => changeLanguage(option.code)}
                 aria-label={option.label}
                 title={option.label}
                 aria-pressed={language === option.code}
@@ -711,7 +740,7 @@ export default function Home() {
               </button>
             ))}
           </div>
-          <a href={whatsappUrl} className="header-cta" target="_blank" rel="noreferrer">
+          <a href={whatsappUrl} onClick={waClick("cabecalho")} className="header-cta" target="_blank" rel="noreferrer">
             <WhatsAppIcon /> <span className="cta-label">{c.navCta}</span>
           </a>
           <button
@@ -759,7 +788,7 @@ export default function Home() {
                     key={option.code}
                     className={language === option.code ? "active" : ""}
                     onClick={() => {
-                      setLanguage(option.code);
+                      changeLanguage(option.code);
                       setIsMobileMenuOpen(false);
                     }}
                     aria-label={option.label}
@@ -775,7 +804,7 @@ export default function Home() {
                 className="button button-yellow"
                 target="_blank"
                 rel="noreferrer"
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={(event) => { waClick("menu_mobile")(event); setIsMobileMenuOpen(false); }}
               >
                 <WhatsAppIcon /> {c.navCta}
               </a>
@@ -794,7 +823,7 @@ export default function Home() {
             <h1>{c.heroTitle}</h1>
             <p className="hero-body">{c.heroBody}</p>
             <div className="hero-actions">
-              <a href={whatsappUrl} className="button button-primary" target="_blank" rel="noreferrer">
+              <a href={whatsappUrl} onClick={waClick("hero")} className="button button-primary" target="_blank" rel="noreferrer">
                 <WhatsAppIcon /> {c.heroCta}
               </a>
               <a href="#aulas" className="text-link">{c.heroLink} <span aria-hidden="true">↓</span></a>
@@ -849,7 +878,7 @@ export default function Home() {
                 <ul>
                   {card.bullets.map((bullet) => <li key={bullet}><span>✓</span>{bullet}</li>)}
                 </ul>
-                <a href={whatsappUrl} target="_blank" rel="noreferrer">
+                <a href={whatsappUrl} onClick={waClick(["card_grupo", "card_particular", "card_pacotes"][index] ?? `card_${index + 1}`)} target="_blank" rel="noreferrer">
                   <span>{c.cardCta}</span><WhatsAppIcon />
                 </a>
               </article>
@@ -860,7 +889,7 @@ export default function Home() {
               <article key={extra[0]}>
                 <span className="extra-number">0{index + 4}</span>
                 <div><h3>{extra[0]}</h3><p>{extra[1]}</p></div>
-                <a href={whatsappUrl} target="_blank" rel="noreferrer" aria-label={`${c.cardCta}: ${extra[0]}`}>
+                <a href={whatsappUrl} onClick={waClick(["extra_criancas", "extra_sup"][index] ?? `extra_${index + 1}`)} target="_blank" rel="noreferrer" aria-label={`${c.cardCta}: ${extra[0]}`}>
                   <WhatsAppIcon />
                 </a>
               </article>
@@ -926,7 +955,7 @@ export default function Home() {
               playsInline
               preload="metadata"
               poster="/experience/aula-07.jpg"
-              onPlay={() => setIsVideoPlaying(true)}
+              onPlay={() => { setIsVideoPlaying(true); trackEvent("video_play", { language }); }}
               onPause={() => setIsVideoPlaying(false)}
               onEnded={() => setIsVideoPlaying(false)}
             >
@@ -970,7 +999,7 @@ export default function Home() {
               <p>{c.storyP2}</p>
               <p>{c.storyP3}</p>
             </div>
-            <a href={whatsappUrl} className="button button-yellow" target="_blank" rel="noreferrer">
+            <a href={whatsappUrl} onClick={waClick("historia")} className="button button-yellow" target="_blank" rel="noreferrer">
               <WhatsAppIcon /> {c.storyCta}
             </a>
           </div>
@@ -1034,7 +1063,7 @@ export default function Home() {
             <p className="eyebrow light">{c.locationKicker}</p>
             <h2>{c.locationTitle}</h2>
             <p>{c.locationBody}</p>
-            <a className="text-link light-link" href="https://www.google.com/maps/search/?api=1&query=Posto+7+Arpoador+Rio+de+Janeiro" target="_blank" rel="noreferrer">
+            <a className="text-link light-link" onClick={() => trackEvent("map_click", { cta_location: "localizacao", language })} href="https://www.google.com/maps/search/?api=1&query=Posto+7+Arpoador+Rio+de+Janeiro" target="_blank" rel="noreferrer">
               {c.mapCta} <span>↗</span>
             </a>
           </div>
@@ -1066,7 +1095,7 @@ export default function Home() {
           <p className="eyebrow light">{c.finalKicker}</p>
           <h2>{c.finalTitle}</h2>
           <p>{c.finalBody}</p>
-          <a href={whatsappUrl} className="button button-yellow button-large" target="_blank" rel="noreferrer">
+          <a href={whatsappUrl} onClick={waClick("final")} className="button button-yellow button-large" target="_blank" rel="noreferrer">
             <WhatsAppIcon /> {c.finalCta}
           </a>
         </div>
@@ -1085,6 +1114,7 @@ export default function Home() {
             <a
               className="instagram-link"
               href="https://www.instagram.com/naama_surf/"
+              onClick={() => trackEvent("instagram_click", { cta_location: "localizacao", language })}
               target="_blank"
               rel="noreferrer"
               aria-label={u.instagramLabel}
@@ -1105,6 +1135,7 @@ export default function Home() {
             <div className="map-badge"><span>7</span><b>POSTO · ARPOADOR</b></div>
             <a
               href="https://www.google.com/maps/search/?api=1&query=Posto+7+Arpoador+Rio+de+Janeiro"
+              onClick={() => trackEvent("map_click", { cta_location: "mapa", language })}
               target="_blank"
               rel="noreferrer"
             >
@@ -1117,7 +1148,7 @@ export default function Home() {
       <footer>
         <div className="container footer-grid">
           <div className="footer-brand"><img src="/brand/naama-surf-logo.png" alt="" /><div><strong>NAAMÃ SURF</strong><p>{c.footer}</p></div></div>
-          <div><span>{u.contact}</span><a href={whatsappUrl} target="_blank" rel="noreferrer">+55 21 99097-0011</a><a href="https://www.instagram.com/naama_surf/" target="_blank" rel="noreferrer">@naama_surf ↗</a></div>
+          <div><span>{u.contact}</span><a href={whatsappUrl} onClick={waClick("rodape")} target="_blank" rel="noreferrer">+55 21 99097-0011</a><a href="https://www.instagram.com/naama_surf/" onClick={() => trackEvent("instagram_click", { cta_location: "rodape", language })} target="_blank" rel="noreferrer">@naama_surf ↗</a></div>
           <div><span>{u.location}</span><p>Posto 7 · Arpoador<br />Ipanema · Rio de Janeiro</p></div>
         </div>
         <div className="container footer-bottom"><span>© 2026 Naamã Surf School</span><a href="https://unsplash.com/photos/a-person-swimming-in-the-ocean-at-sunset-M_kAtJyxlAk" target="_blank" rel="noreferrer">{c.photoCredit}</a></div>
@@ -1175,7 +1206,7 @@ export default function Home() {
         </div>
       )}
 
-      <a className="floating-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer">
+      <a className="floating-whatsapp" href={whatsappUrl} onClick={waClick("flutuante")} target="_blank" rel="noreferrer">
         <WhatsAppIcon /> <span>{c.floating}</span>
       </a>
     </main>

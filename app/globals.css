@@ -664,3 +664,14 @@ footer { padding: 72px 0 28px; color: white; background: var(--navy); }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
 }
+
+/* Aviso de cookies */
+.consent-banner { position: fixed; z-index: 95; left: 24px; bottom: 24px; max-width: 340px; padding: 16px 18px; border-radius: 16px; background: var(--navy); color: var(--white); box-shadow: 0 12px 30px rgba(0,0,0,.28); font-size: 13px; line-height: 1.45; }
+.consent-banner p { margin: 0 0 12px; }
+.consent-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.consent-actions button { padding: 8px 14px; border-radius: 999px; font: inherit; font-weight: 800; cursor: pointer; border: 1px solid rgba(255,254,248,.35); }
+.consent-decline { background: transparent; color: var(--white); }
+.consent-accept { background: var(--yellow); color: var(--ink); border-color: var(--yellow) !important; }
+@media (max-width: 780px) {
+  .consent-banner { left: 12px; right: 12px; bottom: 84px; max-width: none; }
+}
